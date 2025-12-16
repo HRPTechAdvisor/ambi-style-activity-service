@@ -1,52 +1,77 @@
-\# METRICS.md — ambi-style-activity-service
+\# METRICS.md
 
 
 
-This document describes all Prometheus metrics defined in `app/core/metrics.py`.
+\## 1. Purpose
 
 
 
-\## 1. REQUEST\_COUNT
+\- Describe what each metric measures and why it exists
 
-\- \*\*Type\*\*: Counter
+\- Central location for all metrics while it will explain the centralized metrics definitions
 
-\- \*\*Purpose\*\*: Counts all HTTP requests processed by the service.
+\- Avoids duplicate registrations
 
-\- \*\*Labels\*\*:
+\- Enables consistent observability / Provide context for engineers or students learning observability
 
-&nbsp; - `method` → HTTP method (GET, POST, etc.)
 
-&nbsp; - `endpoint` → normalized route path
-
-&nbsp; - `status` → HTTP status code
-
-\- \*\*Usage\*\*: Incremented in request middleware on every HTTP request.
+# Centralized Metrics — ambi-style-activity-service
 
 
 
-\## 2. REQUEST\_LATENCY
-
-\- \*\*Type\*\*: Histogram
-
-\- \*\*Purpose\*\*: Tracks request duration for latency analysis.
-
-\- \*\*Labels\*\*:
-
-&nbsp; - `method`
-
-&nbsp; - `endpoint`
-
-\- \*\*Usage\*\*: Observed in middleware for each request to compute latency metrics.
+\## 2. Metrics Defined
 
 
 
-\### Notes
+\### REQUEST\_COUNT
 
-\- Metrics names follow Prometheus naming conventions.
+\- Type: Counter
 
-\- Labels are chosen to support SLI/SLO definitions and error analysis.
+\- Labels: method, endpoint, status
 
-\- All timestamps are ISO-8601 where relevant.
+\- Purpose: track total number of HTTP requests
+
+
+
+\### REQUEST\_LATENCY
+
+\- Type: Histogram
+
+\- Labels: method, endpoint
+
+\- Purpose: track request latency in seconds
+
+
+
+Explain the rationale for centralized metrics definitions.
+
+
+
+\## Metrics Module (`app/core/metrics.py`)
+
+\- `REQUEST\_COUNT`: Counter tracking total requests with labels `method`, `endpoint`, `status`
+
+\- `REQUEST\_LATENCY`: Histogram tracking request duration per method/endpoint
+
+
+
+\## Best Practices
+
+\- Metrics defined once, imported elsewhere
+
+\- No runtime behavior in the module
+
+\- Promotes \*\*consistency and observability\*\* across services
+
+
+
+\## References
+
+\- Prometheus Python client: https://github.com/prometheus/client\_python
+
+\- Google SRE Book: https://sre.google/sre-book/table-of-contents
+
+\- Observability patterns: https://prometheus.io/docs/introduction/overview/
 
 
 

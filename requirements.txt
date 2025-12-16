@@ -1,3 +1,8 @@
-fastapi
-uvicorn
-prometheus-client
+# Requirements Explanation
+- fastapi: Python framework for building web APIs
+- prometheus-client: Provides Prometheus metrics support
+- uvicorn: ASGI server to run FastAPI applications
+
+fastapi>=0.108
+prometheus-client>=0.14.1
+uvicorn>=0.25

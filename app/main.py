@@ -1,6 +1,12 @@
 """
-FastAPI service entry point with SRE-grade metrics integration.
-All requests are automatically tracked; /metrics endpoint exposes metrics.
+
+main.py
+
+Main FastAPI application
+
+Purpose:
+- Serve API endpoints
+- Integrate Prometheus metrics middleware
 """
 
 from fastapi import FastAPI, Request, Response

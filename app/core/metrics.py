@@ -1,10 +1,14 @@
 """
 metrics.py
 
-Centralized Prometheus metrics definitions.
-
+Purpose:
+- Define application-level metrics only
+- Avoid side effects at import time
+- Enable consistent observability across services
 This module defines application-level metrics only.
 It must not start servers or register routes.
+
+This file attempts to follow AMBI.inc / BYU SRE Standards.
 """
 
 from prometheus_client import Counter, Histogram
