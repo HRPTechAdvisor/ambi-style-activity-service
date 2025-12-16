@@ -1,0 +1,39 @@
+# ------------------------
+# Python bytecode
+# ------------------------
+__pycache__/
+*.py[cod]
+
+# ------------------------
+# Virtual environments
+# ------------------------
+env/
+venv/
+*.env
+
+# ------------------------
+# IDE / Editor
+# ------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------
+# Jupyter Notebooks
+# ------------------------
+.ipynb_checkpoints
+
+# ------------------------
+# OS-generated files
+# ------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------
+# Logs and temporary files
+# ------------------------
+*.log
+*.tmp
+*.bak
