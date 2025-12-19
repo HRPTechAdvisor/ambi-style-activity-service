@@ -6,21 +6,21 @@ Main FastAPI application
 Purpose:
 - Serve API endpoints
 - Integrate Prometheus metrics middleware
-- Include health check and structured logging
+- Include health check, readiness check, and structured logging
 """
 
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+import json
 import time
 import logging
 
 from app.core.metrics import REQUEST_COUNT, REQUEST_LATENCY
 
 # ---- Logging setup ----
-logger = logging.getLogger("uvicorn.access")
+logger = logging.getLogger("app")
 logger.setLevel(logging.INFO)
-logger.propagate = False  # Prevent double formatting
 
 # ---- FastAPI app ----
 app = FastAPI(title="ambi-style-activity-service")
@@ -34,7 +34,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     Features:
     - Measures request latency and records Prometheus metrics
     - Counts requests by method, endpoint, and status
-    - Logs request method, path, status, and duration
+    - Logs request method, path, status, duration, and client IP
     - Avoids Uvicorn formatter conflicts
     """
 
@@ -43,7 +43,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         duration = time.time() - start
 
-        # Update Prometheus metrics
+        # ---- Update Prometheus metrics ----
         REQUEST_COUNT.labels(
             method=request.method,
             endpoint=request.url.path,
@@ -55,11 +55,20 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             endpoint=request.url.path,
         ).observe(duration)
 
-      
+        # ---- Structured logging ----
+        log_entry = {
+            "method": request.method,
+            "endpoint": request.url.path,
+            "status": response.status_code,
+            "duration": duration,
+            "client": request.client.host,
+        }
+        print(json.dumps(log_entry))  # JSON output to stdout for centralized logging
+
         return response
 
 
-# Attach middleware
+# Attach metrics middleware
 app.add_middleware(MetricsMiddleware)
 
 
@@ -71,6 +80,16 @@ async def health():
     Returns a JSON response {"status": "ok"}.
     """
     return {"status": "ok"}
+
+
+# ---- Readiness endpoint ----
+@app.get("/ready")
+async def ready():
+    """
+    Readiness check endpoint.
+    Returns {"status": "ready"} if the app is ready to serve traffic.
+    """
+    return {"status": "ready"}
 
 
 # ---- Prometheus metrics endpoint ----
