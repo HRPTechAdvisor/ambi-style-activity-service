@@ -55,10 +55,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             endpoint=request.url.path,
         ).observe(duration)
 
-        # Structured log (string only to avoid formatting errors)
-        log_message = f"{request.method} {request.url.path} {response.status_code} {duration:.4f}s"
-        logger.info(log_message)
-
+      
         return response
 
 
