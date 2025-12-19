@@ -18,18 +18,17 @@ import logging
 from app.core.metrics import REQUEST_COUNT, REQUEST_LATENCY
 
 # ---- Logging setup ----
-# Uvicorn access logger (structured)
 logger = logging.getLogger("uvicorn.access")
-logger.setlevel(logging.INFO)
-logger.propagate = False # Prevent double formatting
+logger.setLevel(logging.INFO)
+logger.propagate = False  # Prevent double formatting
 
 # ---- FastAPI app ----
 app = FastAPI(title="ambi-style-activity-service")
 
-# ---- Metrics Middleware ----
 
+# ---- Metrics Middleware ----
 class MetricsMiddleware(BaseHTTPMiddleware):
-        """
+    """
     Middleware to record request metrics and log requests safely.
 
     Features:
@@ -38,7 +37,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     - Logs request method, path, status, and duration
     - Avoids Uvicorn formatter conflicts
     """
-    
+
     async def dispatch(self, request: Request, call_next):
         start = time.time()
         response = await call_next(request)
@@ -48,31 +47,34 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         REQUEST_COUNT.labels(
             method=request.method,
             endpoint=request.url.path,
-            status=str(response.status_code)
+            status=str(response.status_code),
         ).inc()
-        
+
         REQUEST_LATENCY.labels(
             method=request.method,
-            endpoint=request.url.path
+            endpoint=request.url.path,
         ).observe(duration)
 
-       # ---- Structured log (string only to avoid formatting errors) ----
+        # Structured log (string only to avoid formatting errors)
         log_message = f"{request.method} {request.url.path} {response.status_code} {duration:.4f}s"
         logger.info(log_message)
 
         return response
-        
+
+
 # Attach middleware
 app.add_middleware(MetricsMiddleware)
+
 
 # ---- Health endpoint ----
 @app.get("/health")
 async def health():
-      """
+    """
     Liveness check endpoint.
     Returns a JSON response {"status": "ok"}.
     """
     return {"status": "ok"}
+
 
 # ---- Prometheus metrics endpoint ----
 @app.get("/metrics")
