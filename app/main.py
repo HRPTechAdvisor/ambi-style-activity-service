@@ -15,12 +15,17 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 import json
 import time
 import logging
+import sys
 
 from app.core.metrics import REQUEST_COUNT, REQUEST_LATENCY
 
 # ---- Logging setup ----
 logger = logging.getLogger("app")
 logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 # ---- FastAPI app ----
 app = FastAPI(title="ambi-style-activity-service")
@@ -63,7 +68,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
             "duration": duration,
             "client": request.client.host,
         }
-        print(json.dumps(log_entry))  # JSON output to stdout for centralized logging
+        logger.info(json.dumps(log_entry))
 
         return response
 
